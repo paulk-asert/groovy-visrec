@@ -88,6 +88,10 @@ Observations worth telling in a post:
   ```
 
   Same for `avg(n).round() as mean`. Without the alias, or with `(avg(n) as int) as mean`, it works.
+  Still present on master (7.0.0-SNAPSHOT 20261124.231757-308). Cause: `GinqAstWalker.validateGroupCols`
+  checks `isExpression(expr, MethodCallExpression)` (which unwraps the alias `CastExpression`) but then
+  casts the still-wrapped `expr` to `MethodCallExpression`. Unwrapping there fixes it; the same crash also
+  hides the intended "`helper(n)` is not an aggregate function" error for `select ..., helper(n) as h`.
 
 ## Possible next steps
 
