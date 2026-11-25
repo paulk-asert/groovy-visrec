@@ -1,0 +1,3 @@
+moduleName=fruit-image-extensions
+moduleVersion=1.0
+extensionClasses=fruit.ImageExtensions

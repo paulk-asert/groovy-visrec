@@ -1,0 +1,54 @@
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'groovy'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.apache.groovy:groovy:$groovyVersion"
+    implementation "org.apache.groovy:groovy-sql:$groovyVersion"
+    implementation "org.apache.groovy:groovy-ginq:$groovyVersion"
+    implementation "org.apache.groovy:groovy-json:$groovyVersion"
+    implementation "javax.visrec:visrec-api:$visrecApiVersion"
+    implementation "javax.visrec:visrec-ri:$visrecRiVersion"
+    implementation "org.duckdb:duckdb_jdbc:$duckdbVersion"
+    constraints {
+        // Deep Netts 1.13.x drags in log4j 2.7, which is affected by CVE-2021-44228
+        implementation("org.apache.logging.log4j:log4j-core:$log4jVersion") { because 'Log4Shell' }
+        implementation("org.apache.logging.log4j:log4j-api:$log4jVersion") { because 'Log4Shell' }
+    }
+}
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(17) }
+}
+
+// ./gradlew run -Pmain=fruit.Gallery
+tasks.register('run', JavaExec) {
+    mainClass = providers.gradleProperty('main').orElse('fruit.Evaluate')
+    classpath = sourceSets.main.runtimeClasspath
+    workingDir = projectDir
+    jvmArgs '-Djava.awt.headless=true'
+    systemProperties System.properties.subMap(['engines', 'epochs', 'level', 'unseen'])
+}
+
+tasks.register('copyLibs', Copy) {
+    from configurations.runtimeClasspath
+    into layout.buildDirectory.dir('libs-runtime')
+}
