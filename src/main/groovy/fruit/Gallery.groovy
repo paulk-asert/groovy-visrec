@@ -18,16 +18,14 @@ package fruit
 import javax.imageio.ImageIO
 import java.awt.image.BufferedImage
 
-// Contact sheet: one row per style, showing the source emoji then augmented copies
-int cell = 64, perRow = 9
-var rows = Dataset.STYLES.collectMany { style ->
-    var examples = Dataset.augmented(style, perRow - 1, 42)
-    Fruit.values().collect { f ->
-        [Dataset.source(style, f).transform(size: Dataset.SIZE)] + examples.findAll { it.fruit == f }*.image
-    }
-}
-var sheet = new BufferedImage(cell * perRow, cell * rows.size(), BufferedImage.TYPE_INT_RGB)
+// Contact sheet: one row per source style, then easy and hard augmentations of noto2d
+int cell = 64
+var fruits = Fruit.values()
+var rows = Dataset.STYLES.collect { style -> fruits.collect { Dataset.source(style, it).transform(size: 128) } } +
+    ['easy', 'hard'].collect { level -> Dataset.augmented('noto2d', 1, 7, level)*.image }
+var sheet = new BufferedImage(cell * fruits.size(), cell * rows.size(), BufferedImage.TYPE_INT_RGB)
 sheet.createGraphics().with {
+    setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC)
     rows.eachWithIndex { row, r ->
         row.eachWithIndex { img, c -> drawImage(img, c * cell, r * cell, cell, cell, null) }
     }

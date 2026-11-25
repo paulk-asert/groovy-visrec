@@ -73,8 +73,8 @@ class ImageExtensions {
         self.scaled(size).pixels.collectMany { c -> [c.red, c.green, c.blue].collect { it / 255f } } as float[]
     }
 
-    /** hue/saturation/brightness of the pixels which aren't (near) background */
-    static List<float[]> foregroundHsb(BufferedImage self, Color bg = Color.WHITE) {
+    /** hue/saturation/brightness of the pixels which aren't (near) the background, taken from the corner */
+    static List<float[]> foregroundHsb(BufferedImage self, Color bg = self[0, 0]) {
         self.pixels.findAll { c -> distance(c, bg) > 40 }
                    .collect { c -> Color.RGBtoHSB(c.red, c.green, c.blue, null) }
     }

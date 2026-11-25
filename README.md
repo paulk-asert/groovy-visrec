@@ -14,7 +14,7 @@ cheap to put several very different engines behind it and compare them.
 sh scripts/download-emoji.sh                         # fetch the 8 fruit x 3 styles of source images
 ./gradlew run -Pmain=fruit.Gallery                   # build/gallery.png contact sheet
 ./gradlew run                                        # all engines, easy augmentation, noto3d unseen
-./gradlew run -Dlevel=hard -Depochs=25               # harder augmentation
+./gradlew run -Dlevel=hard -Depochs=50               # harder augmentation
 ./gradlew run -Dunseen=twemoji -Dengines=hue,pixel   # pick engines / held-out style
 ```
 
@@ -44,20 +44,23 @@ Evaluation (`Evaluate.groovy`) uses GINQ for the accuracy table, confusion matri
 
 | split                                   | hue | pixel | cnn | cnn training |
 |-----------------------------------------|----:|------:|----:|-------------:|
-| easy, train noto2d+twemoji, seen        |  56 |    96 | 100 | 46s / 15 epochs |
-| easy, unseen noto3d                     |  79 |    96 |  99 |  |
-| easy, train noto2d+noto3d, seen         |  86 |    94 |  99 | 41s / 15 epochs |
-| easy, unseen twemoji                    |  25 |    81 |  88 |  |
-| hard, train noto2d+twemoji, seen        |  50 |    60 |  82 | 75s / 25 epochs (not converged, train acc 0.81) |
-| hard, unseen noto3d                     |  66 |    60 |  81 |  |
+| easy, train noto2d+twemoji, seen        |  68 |    96 | 100 | 46s / 15 epochs |
+| easy, unseen noto3d                     |  87 |    96 |  99 |  |
+| easy, train noto2d+noto3d, seen         |  93 |    94 |  99 | 41s / 15 epochs |
+| easy, unseen twemoji                    |  30 |    81 |  88 |  |
+| hard, train noto2d+twemoji, seen        |  68 |    60 |  90 | 148s / 50 epochs |
+| hard, unseen noto3d                     |  86 |    60 |  83 |  |
+
+Deep Netts seeds its random generator (123), so CNN results repeat exactly run to run.
 
 Observations worth telling in a post:
 
 * The pixel embedder is much better than its reputation **when emoji sit in their canonical pose**
   (96%). It falls apart once position/zoom/rotation vary (60%), which is where the CNN's
-  convolution + pooling earns its keep (82%, still improving).
+  convolution + pooling earns its keep (90%).
 * Colour alone (hue) confirms the fruity-eclipse-collections finding: 🍎/🍑, 🍌/🍊/🍋, 🍓/🍒
-  collide. On the flat Twemoji style it collapses to 25% because Twemoji's palette differs.
+  collide. It ignores pose, so it barely notices the hard augmentation (86% on unseen noto3d,
+  ahead of the CNN), but on the flat Twemoji style it collapses to 30% because the palette differs.
 * Style shift hurts everyone. The CNN's one systematic failure on unseen Twemoji is
   🍓 → 🍎 (17/20): Twemoji's strawberry is a rounder, apple-like red blob.
 * 🍒 → 🍇 shows up for the CNN under hard augmentation: clusters of round things.
