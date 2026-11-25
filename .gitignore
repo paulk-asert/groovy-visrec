@@ -4,3 +4,5 @@ build/
 *.iml
 data/
 logs/
+card/build_card.html
+card/visrec_hero.png
