@@ -18,6 +18,12 @@ apply plugin: 'groovy'
 
 repositories {
     mavenCentral()
+    if (groovyVersion.endsWith('-SNAPSHOT')) {
+        maven {
+            url = 'https://repository.apache.org/content/groups/snapshots/'
+            mavenContent { snapshotsOnly() }
+        }
+    }
 }
 
 dependencies {

@@ -56,7 +56,7 @@ println GQ {
     from p in predictions
     groupby p.classifier, p.test
     orderby p.classifier, p.test
-    select p.classifier, p.test, count() as n, (avg(p.correct ? 100 : 0) as int) as accuracy
+    select p.classifier, p.test, count() as n, Math.round(avg(p.correct ? 100 : 0)) as accuracy
 }
 
 // confusion matrices: rows are actual fruit, columns predicted

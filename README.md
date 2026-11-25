@@ -18,7 +18,7 @@ sh scripts/download-emoji.sh                         # fetch the 8 fruit x 3 sty
 ./gradlew run -Dunseen=twemoji -Dengines=hue,pixel   # pick engines / held-out style
 ```
 
-Java 17+, Groovy 6.0.0, Gradle wrapper.
+Java 17+, Groovy 6.0.1 (currently `6.0.1-SNAPSHOT` from the Apache snapshot repository), Gradle wrapper.
 
 ## Data
 
@@ -44,12 +44,12 @@ Evaluation (`Evaluate.groovy`) uses GINQ for the accuracy table, confusion matri
 
 | split                                   | hue | pixel | cnn | cnn training |
 |-----------------------------------------|----:|------:|----:|-------------:|
-| easy, train noto2d+twemoji, seen        |  68 |    96 | 100 | 46s / 15 epochs |
-| easy, unseen noto3d                     |  87 |    96 |  99 |  |
-| easy, train noto2d+noto3d, seen         |  93 |    94 |  99 | 41s / 15 epochs |
-| easy, unseen twemoji                    |  30 |    81 |  88 |  |
-| hard, train noto2d+twemoji, seen        |  68 |    60 |  90 | 148s / 50 epochs |
-| hard, unseen noto3d                     |  86 |    60 |  83 |  |
+| easy, train noto2d+twemoji, seen        |  68 |    96 | 100 | 45s / 15 epochs |
+| easy, unseen noto3d                     |  88 |    96 |  99 |  |
+| easy, train noto2d+noto3d, seen         |  93 |    94 | 100 | 40s / 15 epochs |
+| easy, unseen twemoji                    |  30 |    82 |  88 |  |
+| hard, train noto2d+twemoji, seen        |  69 |    60 |  90 | 151s / 50 epochs |
+| hard, unseen noto3d                     |  87 |    60 |  84 |  |
 
 Deep Netts seeds its random generator (123), so CNN results repeat exactly run to run.
 
@@ -59,7 +59,7 @@ Observations worth telling in a post:
   (96%). It falls apart once position/zoom/rotation vary (60%), which is where the CNN's
   convolution + pooling earns its keep (90%).
 * Colour alone (hue) confirms the fruity-eclipse-collections finding: 🍎/🍑, 🍌/🍊/🍋, 🍓/🍒
-  collide. It ignores pose, so it barely notices the hard augmentation (86% on unseen noto3d,
+  collide. It ignores pose, so it barely notices the hard augmentation (87% on unseen noto3d,
   ahead of the CNN), but on the flat Twemoji style it collapses to 30% because the palette differs.
 * Style shift hurts everyone. The CNN's one systematic failure on unseen Twemoji is
   🍓 → 🍎 (17/20): Twemoji's strawberry is a rounder, apple-like red blob.
@@ -91,7 +91,7 @@ Observations worth telling in a post:
   ```
 
   Same for `avg(n).round() as mean`. Without the alias, or with `(avg(n) as int) as mean`, it works.
-  Still present on master (7.0.0-SNAPSHOT 20261124.231757-308). Cause: `GinqAstWalker.validateGroupCols`
+  Fixed in 6.0.1 and 7.0.0-alpha-1, so `Evaluate.groovy` uses `Math.round(avg(...)) as accuracy`. Cause: `GinqAstWalker.validateGroupCols`
   checks `isExpression(expr, MethodCallExpression)` (which unwraps the alias `CastExpression`) but then
   casts the still-wrapped `expr` to `MethodCallExpression`. Unwrapping there fixes it; the same crash also
   hides the intended "`helper(n)` is not an aggregate function" error for `select ..., helper(n) as h`.
