@@ -78,7 +78,7 @@ Observations worth telling in a post:
 * Inside an extension-method class, `transform(self, size: 8)` puts the named-args map
   first; call `self.transform(size: 8)` instead.
 * A local variable named `scale` shadows `Graphics2D.scale(...)` inside `with {}`.
-* **Groovy 6.0.0 GINQ bug (unreported as far as JIRA search shows):** aliasing any method
+* **Groovy 6.0.0 GINQ bug ([GROOVY-12833](https://issues.apache.org/jira/browse/GROOVY-12833)):** aliasing any method
   call on/around an aggregate fails compilation with a `BUG!`:
 
   ```groovy
